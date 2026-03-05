@@ -5,6 +5,7 @@ export default defineSchema({
     rooms: defineTable({
         status: v.union(v.literal("waiting"), v.literal("playing"), v.literal("finished")),
         sentence: v.string(),
+        startsAt: v.number(),
         endsAt: v.number(),
         roundNumber: v.number(),
     }),

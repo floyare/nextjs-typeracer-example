@@ -5,7 +5,7 @@ import { Button } from "../../ui/button";
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
-import { api } from "convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 import { Input } from "../../ui/input";
 import { generateId } from "@/lib/utils";
 

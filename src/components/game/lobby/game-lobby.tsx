@@ -2,8 +2,8 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { Button } from "@/components/ui/button";
-import type { Id } from "convex/_generated/dataModel";
-import { api } from "convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import { api } from "@/convex/_generated/api";
 import RacingInput from "../racing-input";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";

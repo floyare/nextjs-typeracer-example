@@ -1,6 +1,6 @@
 import GameLobby from "@/components/game/lobby/game-lobby";
 
-import type { Id } from "convex/_generated/dataModel";
+import type { Id } from "@/convex/_generated/dataModel";
 import { Suspense } from "react";
 
 type PageProps = {

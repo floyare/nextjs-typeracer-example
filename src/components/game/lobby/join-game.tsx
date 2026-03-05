@@ -29,11 +29,13 @@ const JoinGameComponent = () => {
     };
 
     return (
-        <section className="grid place-items-center gap-2 p-6">
-            <Input placeholder="Your nickname..." value={nickname} onChange={(e) => nicknameSet(e.target.value)} min={3} max={18} disabled={isLoading} />
-            <Button disabled={isLoading || !nickname} onClick={handleJoin}>
-                {isLoading ? <><LoaderCircle className="animate-spin" /> Joining...</> : <><Play /> Join the game!</>}
-            </Button>
+        <section>
+            <div className="max-w-48 flex flex-col items-center justify-center gap-2">
+                <Input placeholder="Your nickname..." value={nickname} onChange={(e) => nicknameSet(e.target.value)} min={3} max={18} disabled={isLoading} />
+                <Button disabled={isLoading || !nickname} onClick={handleJoin}>
+                    {isLoading ? <><LoaderCircle className="animate-spin" /> Joining...</> : <><Play /> Join the game!</>}
+                </Button>
+            </div>
         </section>
     );
 }

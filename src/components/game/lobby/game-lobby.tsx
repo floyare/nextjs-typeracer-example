@@ -7,14 +7,15 @@ import { api } from "convex/_generated/api";
 import RacingInput from "../racing-input";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, Trophy } from "lucide-react";
-import { cn, generateId } from "@/lib/utils";
+import { generateId } from "@/lib/utils";
 import CountdownHeader from "./countdown-header";
 import VisualCountdown from "./visual-countdown";
+import PlayerList from "./player-list";
+import Leaderboard from "./leaderboard";
 
 export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, playerId: Id<"players"> | null }) {
     const room = useQuery(api.game.getRoom, { roomId });
-    const players = useQuery(api.game.getPlayers, { roomId });
+    const currentPlayer = useQuery(api.game.getPlayer, { playerId: playerId as string });
 
     const router = useRouter();
 
@@ -65,8 +66,6 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
 
     const isTimeUp = useMemo(() => room?.endsAt ? Date.now() > room.endsAt : false, [room?.endsAt]);
 
-    const currentPlayer = useMemo(() => players?.find(p => p._id === playerId), [players, playerId]);
-
     const [isJoiningNew, setIsJoiningNew] = useState(false);
 
     const handlePlayNewGame = async () => {
@@ -115,7 +114,7 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
         return
     }
 
-    if (!room || !players || !playerId) {
+    if (!room || !playerId) {
         return <div className="p-24 text-center text-xl">Loading the game...</div>;
     }
 
@@ -137,27 +136,12 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
 
                 <div className="relative">
                     {showEndScreen ? (
-                        <div className="bg-white border rounded-xl p-8 shadow-sm text-center flex flex-col items-center gap-6">
-                            <Trophy className="w-20 h-20 text-yellow-400" />
-                            <h3 className="text-4xl font-black">Well done!</h3>
-                            <div className="w-full max-w-md">
-                                <h4 className="font-bold text-xl mb-4 text-left">Final Leaderboard</h4>
-                                <ul className="flex flex-col gap-3">
-                                    {players.sort((a, b) => b.wpm - a.wpm).map((p, index) => (
-                                        <li key={p._id} className={cn("flex justify-between items-center p-4 rounded-lg border", p._id === playerId ? "bg-indigo-50 border-indigo-200" : "bg-slate-50")}>
-                                            <div className="flex items-center gap-4">
-                                                <span className="font-bold text-slate-400">#{index + 1}</span>
-                                                <span className="font-bold text-lg">{p.nickname}</span>
-                                            </div>
-                                            <div className="font-black text-indigo-600 text-lg">{p.wpm} WPM</div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <Button size="lg" className="px-12 h-14 text-lg font-bold" onClick={handlePlayNewGame} disabled={isJoiningNew}>
-                                {isJoiningNew ? <LoaderCircle className="animate-spin" /> : "Play new game"}
-                            </Button>
-                        </div>
+                        <Leaderboard
+                            roomId={roomId}
+                            playerId={playerId}
+                            handlePlayNewGame={handlePlayNewGame}
+                            isJoiningNew={isJoiningNew}
+                        />
                     ) : (
                         <>
                             {showCountdown && <VisualCountdown startsAt={room.startsAt} />}
@@ -175,26 +159,7 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
                 </div>
             </div>
 
-            <div className="col-span-1 bg-white border rounded-xl p-6 h-fit">
-                <h3 className="font-bold text-xl mb-6">Live players</h3>
-                <ul className="flex flex-col gap-4">
-                    {players.sort((a, b) => b.wpm - a.wpm).map((p, index) => (
-                        <li key={p._id} className="flex justify-between items-center p-3 bg-slate-50 rounded border">
-                            <div className="flex items-center gap-3">
-                                <span className="font-bold text-slate-400">#{index + 1}</span>
-                                <div>
-                                    <p className="font-bold">{p.nickname} {p._id === playerId ? "(You)" : ""}</p>
-                                    <p className="text-xs text-slate-500 truncate w-32">{p.progress}</p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-green-600 font-bold">{p.wpm} WPM</p>
-                                <p className="text-xs text-slate-500">{(p.accuracy).toFixed(0)}%</p>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <PlayerList roomId={roomId} playerId={playerId} />
 
         </div>
     );

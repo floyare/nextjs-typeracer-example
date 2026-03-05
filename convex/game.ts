@@ -169,6 +169,15 @@ export const getPlayers = query({
     },
 });
 
+export const getPlayer = query({
+    args: { playerId: v.string() },
+    handler: async (ctx, args) => {
+        const playerId = ctx.db.normalizeId("players", args.playerId);
+        if (!playerId) return null;
+        return await ctx.db.get(playerId);
+    },
+});
+
 export const updateProgress = mutation({
     args: {
         playerId: v.string(),

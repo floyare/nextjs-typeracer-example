@@ -109,7 +109,7 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
         await updateProgress({ playerId, progress, wpm, accuracy: acc });
     }, [playerId, updateProgress, room?.sentence]);
 
-    if (!currentPlayer && (room && room.status !== "waiting")) {
+    if (currentPlayer === null && (room && room.status !== "waiting")) {
         router.push("/")
         alert("Player does not exist in the lobby!")
         return

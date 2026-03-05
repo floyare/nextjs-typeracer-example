@@ -71,19 +71,23 @@ export const join = mutation({
             .collect();
 
         for (const p of existingSessions) {
+            const oldRoomId = p.roomId;
             await ctx.db.delete(p._id);
+
+            const remainingPlayers = await ctx.db
+                .query("players")
+                .withIndex("by_room", (q) => q.eq("roomId", oldRoomId))
+                .collect();
+
+            if (remainingPlayers.length === 0) {
+                await ctx.db.delete(oldRoomId);
+            }
         }
 
         // * clean empty rooms
         const now = Date.now();
         const inactivePlayers = await ctx.db.query("players").filter(q => q.lt(q.field("lastSeen"), now - INACTIVITY_THRESHOLD)).collect();
         for (const p of inactivePlayers) await ctx.db.delete(p._id);
-
-        const rooms = await ctx.db.query("rooms").collect();
-        for (const r of rooms) {
-            const count = (await ctx.db.query("players").withIndex("by_room", q => q.eq("roomId", r._id)).collect()).length;
-            if (count === 0) await ctx.db.delete(r._id);
-        }
 
         const waitingRoom = await ctx.db.query("rooms").filter((q) => q.eq(q.field("status"), "waiting")).first();
         let roomId;

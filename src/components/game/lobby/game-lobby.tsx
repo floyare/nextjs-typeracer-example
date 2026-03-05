@@ -19,12 +19,14 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
 
     const router = useRouter();
 
+    const [isJoiningNew, setIsJoiningNew] = useState(false);
+
     useEffect(() => {
-        if (room === null) {
+        if (room === null && !isJoiningNew) {
             alert("Game room does not exist!");
             router.push("/");
         }
-    }, [room, router]);
+    }, [room, router, isJoiningNew]);
 
     const joinGame = useMutation(api.game.join);
     const forceStart = useMutation(api.game.forceGameStart);
@@ -66,7 +68,6 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
 
     const isTimeUp = useMemo(() => room?.endsAt ? Date.now() > room.endsAt : false, [room?.endsAt]);
 
-    const [isJoiningNew, setIsJoiningNew] = useState(false);
 
     const handlePlayNewGame = async () => {
         if (!currentPlayer) return;

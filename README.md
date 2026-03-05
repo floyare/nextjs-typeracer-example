@@ -2,6 +2,8 @@
 
 A real-time writing competition platform built for the Next.js Coding Challenge. Players can join a lobby, race against each other in real-time, and see live progress, words per minute (WPM), and accuracy stats.
 
+<img width="1122" height="594" alt="image" src="https://github.com/user-attachments/assets/d24e1e68-ac2e-4548-bfc4-67b46ac36846" />
+
 ## Tech Stack & Architecture Choices
 
 - **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS.

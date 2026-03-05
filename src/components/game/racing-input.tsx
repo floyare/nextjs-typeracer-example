@@ -1,6 +1,4 @@
-"use client"
-
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, memo } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useTypingStats } from "@/hooks/use-typing-stats";
@@ -13,7 +11,7 @@ type RacingInputProps = {
     endsAt?: number;
 }
 
-const RacingInput = ({ onProgressUpdate, quote, isDisabled, startsAt, endsAt }: RacingInputProps) => {
+const RacingInput = memo(({ onProgressUpdate, quote, isDisabled, startsAt, endsAt }: RacingInputProps) => {
     const [completedText, completedTextSet] = useState<string>("")
     const [currentInput, currentInputSet] = useState<string>("")
     const [hasSentFinishUpdate, setHasSentFinishUpdate] = useState(false);
@@ -132,6 +130,8 @@ const RacingInput = ({ onProgressUpdate, quote, isDisabled, startsAt, endsAt }: 
             />
         </section>
     );
-};
+});
+
+RacingInput.displayName = "RacingInput";
 
 export default RacingInput;

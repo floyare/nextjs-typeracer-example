@@ -43,18 +43,21 @@ export const cleanupInactive = mutation({
 });
 
 export const deleteRoom = mutation({
-    args: { roomId: v.id("rooms") },
+    args: { roomId: v.string() },
     handler: async (ctx, args) => {
+        const roomId = ctx.db.normalizeId("rooms", args.roomId);
+        if (!roomId) return;
+
         const players = await ctx.db
             .query("players")
-            .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+            .withIndex("by_room", (q) => q.eq("roomId", roomId))
             .collect();
 
         for (const player of players) {
             await ctx.db.delete(player._id);
         }
 
-        await ctx.db.delete(args.roomId);
+        await ctx.db.delete(roomId);
     },
 });
 
@@ -116,13 +119,16 @@ export const join = mutation({
 });
 
 export const forceGameStart = mutation({
-    args: { roomId: v.id("rooms") },
+    args: { roomId: v.string() },
     handler: async (ctx, args) => {
-        const room = await ctx.db.get(args.roomId);
+        const roomId = ctx.db.normalizeId("rooms", args.roomId);
+        if (!roomId) return;
+
+        const room = await ctx.db.get(roomId);
         if (!room || room?.status !== "waiting") return;
 
         const newSentence = getRandomSentence();
-        await ctx.db.patch(args.roomId, {
+        await ctx.db.patch(roomId, {
             status: "playing",
             sentence: newSentence,
             startsAt: Date.now() + 5000,
@@ -133,34 +139,41 @@ export const forceGameStart = mutation({
 });
 
 export const getRoom = query({
-    args: { roomId: v.id("rooms") },
+    args: { roomId: v.string() },
     handler: async (ctx, args) => {
-        return await ctx.db.get(args.roomId);
+        const roomId = ctx.db.normalizeId("rooms", args.roomId);
+        if (!roomId) return null;
+        return await ctx.db.get(roomId);
     },
 });
 
 export const getPlayers = query({
-    args: { roomId: v.id("rooms") },
+    args: { roomId: v.string() },
     handler: async (ctx, args) => {
+        const roomId = ctx.db.normalizeId("rooms", args.roomId);
+        if (!roomId) return [];
         return await ctx.db
             .query("players")
-            .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+            .withIndex("by_room", (q) => q.eq("roomId", roomId))
             .collect();
     },
 });
 
 export const updateProgress = mutation({
     args: {
-        playerId: v.id("players"),
+        playerId: v.string(),
         progress: v.string(),
         wpm: v.number(),
         accuracy: v.number()
     },
     handler: async (ctx, args) => {
-        const player = await ctx.db.get(args.playerId);
+        const playerId = ctx.db.normalizeId("players", args.playerId);
+        if (!playerId) return;
+
+        const player = await ctx.db.get(playerId);
         if (!player) return;
 
-        await ctx.db.patch(args.playerId, {
+        await ctx.db.patch(playerId, {
             progress: args.progress,
             wpm: args.wpm,
             accuracy: args.accuracy,
@@ -192,8 +205,10 @@ export const updateProgress = mutation({
 });
 
 export const heartbeat = mutation({
-    args: { playerId: v.id("players") },
+    args: { playerId: v.string() },
     handler: async (ctx, args) => {
-        await ctx.db.patch(args.playerId, { lastSeen: Date.now() });
+        const playerId = ctx.db.normalizeId("players", args.playerId);
+        if (!playerId) return;
+        await ctx.db.patch(playerId, { lastSeen: Date.now() });
     },
 });

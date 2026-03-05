@@ -53,6 +53,14 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
     const players = useQuery(api.game.getPlayers, { roomId });
 
     const router = useRouter();
+
+    useEffect(() => {
+        if (room === null) {
+            alert("Game room does not exist!");
+            router.push("/");
+        }
+    }, [room, router]);
+
     const joinGame = useMutation(api.game.join);
     const forceStart = useMutation(api.game.forceGameStart);
     const updateProgress = useMutation(api.game.updateProgress);

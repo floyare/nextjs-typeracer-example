@@ -7,6 +7,7 @@ import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "convex/_generated/api";
 import { Input } from "../../ui/input";
+import { generateId } from "@/lib/utils";
 
 const JoinGameComponent = () => {
     const [nickname, nicknameSet] = useState("");
@@ -18,9 +19,15 @@ const JoinGameComponent = () => {
         e.preventDefault();
         if (!nickname.trim()) return;
 
+        let sessionId = localStorage.getItem("typeracer_session_id");
+        if (!sessionId) {
+            sessionId = generateId();
+            localStorage.setItem("typeracer_session_id", sessionId);
+        }
+
         isLoadingSet(true);
         try {
-            const { roomId, playerId } = await joinGame({ nickname });
+            const { roomId, playerId } = await joinGame({ nickname, sessionId });
             router.push(`/game/${roomId}?playerId=${playerId}`);
         } catch (error) {
             console.error("Failed while joining the game:", error);

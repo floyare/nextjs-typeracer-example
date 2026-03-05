@@ -8,7 +8,7 @@ import RacingInput from "../racing-input";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Trophy } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, generateId } from "@/lib/utils";
 
 // AI generated
 const VisualCountdown = ({ startsAt }: { startsAt: number }) => {
@@ -110,7 +110,16 @@ export default function GameLobby({ roomId, playerId }: { roomId: Id<"rooms">, p
         setIsJoiningNew(true);
 
         try {
-            const { roomId: newRoomId, playerId: newPlayerId } = await joinGame({ nickname: currentPlayer.nickname });
+            let sessionId = localStorage.getItem("typeracer_session_id");
+            if (!sessionId) {
+                sessionId = generateId();
+                localStorage.setItem("typeracer_session_id", sessionId);
+            }
+
+            const { roomId: newRoomId, playerId: newPlayerId } = await joinGame({
+                nickname: currentPlayer.nickname,
+                sessionId: sessionId
+            });
             router.push(`/game/${newRoomId}?playerId=${newPlayerId}`);
         } catch (e) {
             console.error(e);

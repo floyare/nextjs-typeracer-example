@@ -62,11 +62,20 @@ export const deleteRoom = mutation({
 });
 
 export const join = mutation({
-    args: { nickname: v.string() },
+    args: { nickname: v.string(), sessionId: v.string() },
     handler: async (ctx, args) => {
+        // * clean old sessions
+        const existingSessions = await ctx.db
+            .query("players")
+            .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
+            .collect();
+
+        for (const p of existingSessions) {
+            await ctx.db.delete(p._id);
+        }
+
         // * clean empty rooms
         const now = Date.now();
-
         const inactivePlayers = await ctx.db.query("players").filter(q => q.lt(q.field("lastSeen"), now - INACTIVITY_THRESHOLD)).collect();
         for (const p of inactivePlayers) await ctx.db.delete(p._id);
 
@@ -99,6 +108,7 @@ export const join = mutation({
             accuracy: 100,
             isReady: true,
             lastSeen: Date.now(),
+            sessionId: args.sessionId,
         });
 
         const playersCount = (await ctx.db.query("players").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect()).length;

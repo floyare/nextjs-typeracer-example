@@ -18,5 +18,6 @@ export default defineSchema({
         accuracy: v.number(),
         isReady: v.boolean(),
         lastSeen: v.number(),
-    }).index("by_room", ["roomId"]),
+        sessionId: v.optional(v.string()),
+    }).index("by_room", ["roomId"]).index("by_session", ["sessionId"]),
 });
